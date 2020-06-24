@@ -217,7 +217,6 @@ base_model = tf.keras.applications.ResNet101(input_shape=IMG_SHAPE,
                                                weights='imagenet')
 
 base_model.trainable = True
-x = base_model.output
 
 global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
 prediction_layer = tf.keras.layers.Dense(2, activation='softmax',kernel_initializer=he_init)
