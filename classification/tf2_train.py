@@ -24,9 +24,10 @@ if gpus:
         # Memory growth must be set before GPUs have been initialized
         print(e)
 
+
 def load_cifar_all_X_Y():
-    csv_path = '/media/j/새 볼륨1/dataset/trainLabels.csv'
-    img_path = '/media/j/새 볼륨1/dataset/cifar10_train' + '/'
+    csv_path = '/media/crescom/새 볼륨1/dataset/trainLabels.csv'
+    img_path = '/media/crescom/새 볼륨1/dataset/cifar10_train' + '/'
     img_list = []
     label_list = []
     one_hot_label_list = []
@@ -76,8 +77,8 @@ def one_hot_Y(train_Y_list, class_cnt):
     return train_Y
 
 
-total_dog_path = '/media/j/새 볼륨1/dataset/dog_and_cat/dog' + '/'
-total_cat_path = '/media/j/새 볼륨1/dataset/dog_and_cat/cat' + '/'
+total_dog_path = '/media/crescom/새 볼륨1/dataset/dog_and_cat/dog' + '/'
+total_cat_path = '/media/crescom/새 볼륨1/dataset/dog_and_cat/cat' + '/'
 
 train_dog_img_name_def, val_dog_img_name_def, train_dog_Y, val_dog_Y = load_class_X_Y(total_dog_path, 0)
 train_cat_img_name_def, val_cat_img_name_def, train_cat_Y, val_cat_Y = load_class_X_Y(total_cat_path, 1)
@@ -113,6 +114,7 @@ def next_batch(data_list, mini_batch_size, next_cnt):
     batch_list = data_list[cnt:cnt + mini_batch_size]
     return batch_list
 
+
 mini_batch_size = 15
 batch_size = math.ceil(len(total_train_X) / mini_batch_size)
 val_batch_size = math.ceil(len(total_val_X) / mini_batch_size)
@@ -121,6 +123,16 @@ batch_cnt = 0
 val_batch_cnt = 0
 epoch = 50
 max_val_acc = 0
+
+# 마지막 슬라이스에 오면 처음부터 img read
+# for i in range(10):
+#     print(next_batch(total_train_X[:8], mini_batch_size, batch_cnt))
+#
+#     print(mini_batch_size * (batch_cnt + 1))
+#     if mini_batch_size * (batch_cnt + 1) >= len(total_train_X[:8]):
+#         batch_cnt = 0
+#     else:
+#         batch_cnt += 1
 
 # batch마다 img를 list에 담아 return
 def img_loader(img_list, rot_rate=0.0, shift_rate=0.0, aug=True):
@@ -153,6 +165,26 @@ def img_loader(img_list, rot_rate=0.0, shift_rate=0.0, aug=True):
 
 print('total_train_Y', len(total_train_Y))
 
+# print('len(total_train_X[:8]', len(total_train_X[:8]))
+
+# for i in range(3):
+#   one_batch_X_list = next_batch(total_train_X[:8],mini_batch_size,batch_cnt)
+#   one_batch_Y = next_batch(total_train_Y[:8],mini_batch_size,batch_cnt)
+#   one_batch_X = img_loader(one_batch_X_list)
+
+#   print('one_batch_X', one_batch_X.shape)
+#   print('one_batch_Y', one_batch_Y.shape)
+
+# #   for k in one_batch_img:
+# #     plt.imshow(k)
+# #     plt.show()
+
+#   print('batch_size * (batch_cnt+1)',batch_size * (batch_cnt+1))
+#   if mini_batch_size * (batch_cnt + 1) >= len(total_train_X[:8]):
+#     batch_cnt = 0
+#   else:
+#     batch_cnt += 1
+
 l2_regul = tf.keras.regularizers.l2(l=0.1)
 he_init = tf.keras.initializers.he_normal()
 
@@ -166,8 +198,7 @@ he_init = tf.keras.initializers.he_normal()
 #                   strides=1)
 #     return layer
 
-
-#### custom model using keras.Sequential
+# custom model
 # model = tf.keras.Sequential([layers.Conv2D(filters=64,
 #                                         kernel_size=(3,3),
 #                                         padding='same',
@@ -187,10 +218,7 @@ he_init = tf.keras.initializers.he_normal()
 #                              tf.keras.layers.GlobalAveragePooling2D(),
 #                              tf.keras.layers.Dense(2,activation='softmax',kernel_regularizer=l2_regul,kernel_initializer=he_init)
 # ])
-####
 
-
-#### custom model using keras.Input
 # input = tf.keras.Input(shape=[24, 24, 3])  # change this shape to [None,None,3] to enable arbitraty shape input
 # a = tf.keras.layers.Conv2D(28, (3, 3), strides=1, padding='valid', name='conv1')(input)
 # x = tf.keras.layers.PReLU(shared_axes=[1, 2], name='prelu1')(a)
@@ -208,15 +236,18 @@ he_init = tf.keras.initializers.he_normal()
 # classifier = tf.keras.layers.Dense(2, activation='softmax', name='conv5-1')(x)
 #
 # model = tf.keras.Model([input], [classifier])
-####
 
-#### transfer learning using keras.application
+# pretrained model
+
+# tf.keras.losses.Huber
+
 IMG_SHAPE = (224,224,3)
 base_model = tf.keras.applications.ResNet101(input_shape=IMG_SHAPE,
                                                include_top=False,
                                                weights='imagenet')
 
 base_model.trainable = True
+x = base_model.output
 
 global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
 prediction_layer = tf.keras.layers.Dense(2, activation='softmax',kernel_initializer=he_init)
@@ -227,13 +258,12 @@ model = tf.keras.Sequential([
   prediction_layer
 ])
 
-
-# tf.keras.models.load_model('/media/j/DATA/temp')
+# tf.keras.models.load_model('/media/crescom2/DATA/temp')
 print('load model')
 
 model.summary()
 
-optimizer = tf.optimizers.Adam(learning_rate=0.0001)
+optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
 
 for k in range(epoch):
     print('epoch : ', k)
@@ -249,13 +279,23 @@ for k in range(epoch):
 
     for i in range(batch_size):
         train_one_batch_X_list = next_batch(total_train_X, mini_batch_size, i)
+        # print('train one_batch_X_list', one_batch_X_list)
         train_one_batch_Y = next_batch(total_train_Y, mini_batch_size, i)
+        #             print('one_batch_Y',one_batch_Y)
         train_one_batch_Y = one_hot_Y(train_one_batch_Y, 2)
         train_one_batch_X = img_loader(train_one_batch_X_list, 45, 0.1, True)
+        # print(one_batch_X.shape)
+        # print(one_batch_X_list)
+        # print(one_batch_Y)
+
+        #             print('train one_batch_X', one_batch_X.shape)
+        #             print('train one_batch_Y', one_batch_Y.shape)
 
         with tf.GradientTape() as tape:
-            y_ = model(train_one_batch_X)            
-            loss = tf.losses.categorical_crossentropy(train_one_batch_Y, y_)
+            y_ = model(train_one_batch_X)
+            # loss = SparseCategoricalCrossentropy(from_logits= True)
+
+            loss = tf.keras.losses.categorical_crossentropy(train_one_batch_Y, y_)
 
             grad = tape.gradient(loss, model.trainable_variables)
             optimizer.apply_gradients(zip(grad, model.trainable_variables))
@@ -264,9 +304,9 @@ for k in range(epoch):
         train_loss += np.mean(loss)
         train_accuracy += acc
 
-        # epoch_loss(loss)  # 현재 배치 손실을 추가합니다.
-        # # 예측된 레이블과 실제 레이블 비교합니다.
-        # epoch_acc(train_one_batch_Y, y_)
+        epoch_loss(loss)  # 현재 배치 손실을 추가합니다.
+        # 예측된 레이블과 실제 레이블 비교합니다.
+        epoch_acc(train_one_batch_Y, y_)
 
         # train_loss_results.append(epoch_loss.result())
         # train_accuracy_results.append(epoch_acc.result())
@@ -293,9 +333,15 @@ for k in range(epoch):
         val_one_batch_Y = one_hot_Y(val_one_batch_Y, 2)
         val_one_batch_X = img_loader(val_one_batch_X_list, 0, 0, aug=False)
 
+
+
         y_ = model(val_one_batch_X)
         # loss = tf.keras.losses.categorical_crossentropy(y_true=one_batch_Y, y_pred=y_)
-        loss = tf.losses.categorical_crossentropy(val_one_batch_Y,y_)
+        loss = tf.keras.losses.categorical_crossentropy(val_one_batch_Y,y_)
+
+        #             print('loss', loss)
+        #             print('probability', prob)
+        #             print('label', label)
 
         # print(y_)
         # np.mean(loss))
@@ -307,5 +353,5 @@ for k in range(epoch):
 
     print(val_accuracy / val_batch_size)
 
-    # tf.keras.models.save_model(model, "/media/j/DATA/temp/")
+    # tf.keras.models.save_model(model, "/media/crescom2/DATA/temp/")
 
