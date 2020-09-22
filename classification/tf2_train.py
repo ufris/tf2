@@ -160,7 +160,14 @@ def img_loader(img_list, rot_rate=0.0, shift_rate=0.0, aug=True):
         #     one_img = cv2.imread(one_img_list,0)
         #     print(one_img.shape)
         img_set.append(one_img)
-    return np.array(img_set, dtype=np.float32)
+        
+    img_set = np.array(img_set, dtype=np.float32)
+
+    # pretrained model에 사용된 정규화 방법과 동일하게 적용해야함
+    img_set /= 127.5
+    img_set -= 1.
+
+    return img_set
 
 
 print('total_train_Y', len(total_train_Y))
