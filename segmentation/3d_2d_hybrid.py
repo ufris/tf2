@@ -6,9 +6,9 @@ import os
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
-# path = '/media/crescom/새 볼륨1/dataset/COVID_data/COVID_CT/COVID19_1110/studies/CT-0/study_0001.nii.gz'
-# path = '/media/crescom/새 볼륨1/dataset/COVID_data/COVID_CT/zenodo_set/lung_and_infection_mask/coronacases_001.nii.gz'
-path = '/media/crescom/새 볼륨1/dataset/COVID_data/COVID_CT/medical_segmentation/rp_msk/1.nii.gz'
+# path = '/media/새 볼륨1/dataset/COVID_data/COVID_CT/COVID19_1110/studies/CT-0/study_0001.nii.gz'
+# path = '/media/새 볼륨1/dataset/COVID_data/COVID_CT/zenodo_set/lung_and_infection_mask/coronacases_001.nii.gz'
+path = '/media/새 볼륨1/dataset/COVID_data/COVID_CT/medical_segmentation/rp_msk/1.nii.gz'
 
 img = nib.load(path).get_data()
 print(img.shape)
