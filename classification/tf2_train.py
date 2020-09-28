@@ -77,8 +77,8 @@ def one_hot_Y(train_Y_list, class_cnt):
     return train_Y
 
 
-total_dog_path = '/media/crescom/새 볼륨1/dataset/dog_and_cat/dog' + '/'
-total_cat_path = '/media/crescom/새 볼륨1/dataset/dog_and_cat/cat' + '/'
+total_dog_path = '/media/새 볼륨1/dataset/dog_and_cat/dog' + '/'
+total_cat_path = '/media/새 볼륨1/dataset/dog_and_cat/cat' + '/'
 
 train_dog_img_name_def, val_dog_img_name_def, train_dog_Y, val_dog_Y = load_class_X_Y(total_dog_path, 0)
 train_cat_img_name_def, val_cat_img_name_def, train_cat_Y, val_cat_Y = load_class_X_Y(total_cat_path, 1)
@@ -265,7 +265,7 @@ model = tf.keras.Sequential([
   prediction_layer
 ])
 
-# tf.keras.models.load_model('/media/crescom2/DATA/temp')
+# tf.keras.models.load_model('/media/DATA/temp')
 print('load model')
 
 model.summary()
@@ -360,5 +360,5 @@ for k in range(epoch):
 
     print(val_accuracy / val_batch_size)
 
-    # tf.keras.models.save_model(model, "/media/crescom2/DATA/temp/")
+    # tf.keras.models.save_model(model, "/media/DATA/temp/")
 
