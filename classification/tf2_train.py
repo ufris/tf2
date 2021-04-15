@@ -10,14 +10,14 @@ import matplotlib.pyplot as plt
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 input_size = 331
-save_ckpt_path = '/media//새 볼륨/ckpt/AS/' + '/'
+save_ckpt_path = '/media/crescom/새 볼륨/ckpt/AS/' + '/'
 category = 'tf2_L_spine_UP_rotation_sampling_cut_3000_shuffle_ensemble_resnet_add_y_x_fifth_fix_label_smooth'
 epoch = 100
-total_path = '/media//새 볼륨/data/0.1_final_up_down_L/fifth_fix/up'
+total_path = '/media/crescom/새 볼륨/data/0.1_final_up_down_L/fifth_fix/up'
 mini_batch_size = 3
 binary_train = False
 initial_learning_rate = 0.000001
-
+metric = 'mae'
 
 print(tf.__version__)
 
@@ -211,7 +211,7 @@ with tf.control_dependencies([optimizer]):
 #     training_op = ema.apply([var0, var1])
 # tfa.optimizers.moving_average(optimizer)
 
-# model.load_weights('/media//새 볼륨1/ckpt/spine_cls/2020_10_08_copy/nasnet_fine_tuned_model.h5')
+# model.load_weights('/media/crescom/새 볼륨1/ckpt/spine_cls/2020_10_08_copy/nasnet_fine_tuned_model.h5')
 
 train_accuracy_list = []
 train_loss_list = []
@@ -308,7 +308,10 @@ for k in range(epoch):
             ensemble_predict = np.argmax(class_preds_sum)
             y = np.argmax(val_one_batch_Y)
 
-            val_acc = np.mean(np.cast[np.int32](np.equal(y, ensemble_predict)))
+            if metric == 'acc':
+                val_acc = np.mean(np.cast[np.int32](np.equal(y, ensemble_predict)))
+            elif metric == 'mae':
+                val_acc = tf.metrics.MeanAbsoluteError()(y_,class_preds_sum)
 
             val_accuracy += val_acc
 
@@ -321,7 +324,7 @@ for k in range(epoch):
     if k == 50:
         best_accuracy = 0
 
-    # tf.keras.models.save_model(model, "/media//DATA/temp/")
+    # tf.keras.models.save_model(model, "/media/crescom2/DATA/temp/")
     if val_accuracy >= best_accuracy:
         print('model save')
         best_accuracy = val_accuracy
